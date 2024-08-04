@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myfunctionapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myfunctionapp
+  template:
+    metadata:
+      labels:
+        app: myfunctionapp
+    spec:
+      containers:
+      - name: myfunctionapp
+        image: nd081c2acr.azurecr.io/myfunctionapp:v1
+        ports:
+        - containerPort: 80
+        env:
+        - name: AzureWebJobsStorage
+          value: ""
+        - name: FUNCTIONS_WORKER_RUNTIME
+          value: "python"
+        - name: MyDbConnection
+          value: ""
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          value: ""
+        - name: FUNCTIONS_EXTENSION_VERSION
+          value: "~4"
+        - name: WEBSITE_CONTENTAZUREFILECONNECTIONSTRING
+          value: ""
+        - name: WEBSITE_CONTENTSHARE
+          value: ""
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myfunctionapp-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: myfunctionapp
